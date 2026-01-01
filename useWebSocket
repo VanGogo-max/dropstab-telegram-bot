@@ -1,0 +1,231 @@
+// frontend/src/hooks/useWebSocket.ts
+/**
+ * useWebSocket - Hook за real-time updates
+ * 
+ * ЩО ПРАВИ:
+ * - Установява WebSocket връзка към backend
+ * - Автоматичен reconnect с exponential backoff (1s → 30s max)
+ * - Изпраща keepalive ping на всеки 30s
+ * - Извиква callback при получени съобщения
+ * 
+ * ИЗПОЛЗВАНЕ:
+ * const { connected, send } = useWebSocket('/ws/bots', (data) => {
+ *   console.log('Получих bot update:', data);
+ * });
+ * 
+ * ЗАМЕНЯ:
+ * - Polling с setInterval (❌)
+ * - Честите fetch calls (❌)
+ */
+
+import { useEffect, useRef, useState, useCallback } from 'react';
+
+interface UseWebSocketOptions {
+  onOpen?: () => void;
+  onClose?: () => void;
+  onError?: (error: Event) => void;
+  reconnectDelayMs?: number;
+  maxReconnectDelayMs?: number;
+  pingIntervalMs?: number;
+}
+
+interface UseWebSocketReturn {
+  connected: boolean;
+  send: (data: any) => void;
+  close: () => void;
+}
+
+/**
+ * useWebSocket Hook
+ * 
+ * @param url - WebSocket endpoint (напр. '/ws/bots')
+ * @param onMessage - Callback при получено съобщение
+ * @param options - Допълнителни настройки
+ */
+export function useWebSocket(
+  url: string,
+  onMessage: (data: any) => void,
+  options: UseWebSocketOptions = {}
+): UseWebSocketReturn {
+  const {
+    onOpen,
+    onClose,
+    onError,
+    reconnectDelayMs = 1000,
+    maxReconnectDelayMs = 30000,
+    pingIntervalMs = 30000,
+  } = options;
+
+  const [connected, setConnected] = useState(false);
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+  const pingIntervalRef = useRef<NodeJS.Timeout>();
+  const currentDelayRef = useRef(reconnectDelayMs);
+  const mountedRef = useRef(true);
+
+  /**
+   * Изпраща ping за да запази връзката жива
+   */
+  const startPingInterval = useCallback(() => {
+    if (pingIntervalRef.current) {
+      clearInterval(pingIntervalRef.current);
+    }
+
+    pingIntervalRef.current = setInterval(() => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ type: 'ping' }));
+        console.log('[WS] Ping изпратен');
+      }
+    }, pingIntervalMs);
+  }, [pingIntervalMs]);
+
+  /**
+   * Спира ping interval
+   */
+  const stopPingInterval = useCallback(() => {
+    if (pingIntervalRef.current) {
+      clearInterval(pingIntervalRef.current);
+      pingIntervalRef.current = undefined;
+    }
+  }, []);
+
+  /**
+   * Свързва WebSocket
+   */
+  const connect = useCallback(() => {
+    if (!mountedRef.current) return;
+
+    // Определи протокол (ws:// или wss://)
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const wsUrl = `${protocol}://${window.location.host}${url}`;
+
+    console.log(`[WS] Свързване към ${wsUrl}...`);
+
+    try {
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      // При успешна връзка
+      ws.onopen = () => {
+        console.log('[WS] Свързан успешно!');
+        setConnected(true);
+        currentDelayRef.current = reconnectDelayMs; // Reset backoff
+        startPingInterval();
+        onOpen?.();
+      };
+
+      // При получено съобщение
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          
+          // Игнорирай pong отговори
+          if (data.type === 'pong') {
+            console.log('[WS] Pong получен');
+            return;
+          }
+
+          console.log('[WS] Съобщение получено:', data.type);
+          onMessage(data);
+        } catch (error) {
+          console.error('[WS] Грешка при parse на съобщение:', error);
+        }
+      };
+
+      // При прекъсване на връзката
+      ws.onclose = (event) => {
+        console.log(`[WS] Връзката прекъсната (код: ${event.code})`);
+        setConnected(false);
+        stopPingInterval();
+        wsRef.current = null;
+        onClose?.();
+
+        // Автоматичен reconnect с exponential backoff
+        if (mountedRef.current) {
+          const delay = currentDelayRef.current;
+          console.log(`[WS] Reconnect след ${delay}ms...`);
+          
+          reconnectTimeoutRef.current = setTimeout(() => {
+            currentDelayRef.current = Math.min(
+              currentDelayRef.current * 1.5,
+              maxReconnectDelayMs
+            );
+            connect();
+          }, delay);
+        }
+      };
+
+      // При грешка
+      ws.onerror = (error) => {
+        console.error('[WS] Грешка:', error);
+        onError?.(error);
+        ws.close();
+      };
+
+    } catch (error) {
+      console.error('[WS] Неуспешно свързване:', error);
+      
+      // Retry след backoff
+      reconnectTimeoutRef.current = setTimeout(() => {
+        currentDelayRef.current = Math.min(
+          currentDelayRef.current * 1.5,
+          maxReconnectDelayMs
+        );
+        connect();
+      }, currentDelayRef.current);
+    }
+  }, [url, onMessage, onOpen, onClose, onError, reconnectDelayMs, maxReconnectDelayMs, startPingInterval, stopPingInterval]);
+
+  /**
+   * Изпраща данни през WebSocket
+   */
+  const send = useCallback((data: any) => {
+    if (wsRef.current?.readyState === WebSocket.OPEN) {
+      const message = typeof data === 'string' ? data : JSON.stringify(data);
+      wsRef.current.send(message);
+      console.log('[WS] Изпратено:', data.type || 'data');
+    } else {
+      console.warn('[WS] Опит за изпращане докато не е свързан');
+    }
+  }, []);
+
+  /**
+   * Затваря WebSocket връзката
+   */
+  const closeConnection = useCallback(() => {
+    console.log('[WS] Затваряне на връзката...');
+    mountedRef.current = false;
+    
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+    
+    stopPingInterval();
+    
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    
+    setConnected(false);
+  }, [stopPingInterval]);
+
+  // Свързване при mount
+  useEffect(() => {
+    mountedRef.current = true;
+    connect();
+
+    // Cleanup при unmount
+    return () => {
+      closeConnection();
+    };
+  }, [connect, closeConnection]);
+
+  return {
+    connected,
+    send,
+    close: closeConnection,
+  };
+}
+
+export default useWebSocket;
