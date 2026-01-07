@@ -1,0 +1,537 @@
+"""
+AI-Powered Strategy Auto-Selector - COMPLETE VERSION
+Automatically selects optimal trading strategy based on market conditions and user profile
+"""
+
+import numpy as np
+import pandas as pd
+from typing import Dict, List, Optional, Tuple
+import logging
+from datetime import datetime, timedelta
+from enum import Enum
+import json
+
+logger = logging.getLogger(__name__)
+
+
+class StrategyType(Enum):
+    """Available strategy types"""
+    LIQUIDITY = "liquidity"
+    TURTLE = "turtle"
+    ICT = "ict"
+    PRICE_ARBITRAGE = "price_arbitrage"
+    FUNDING_ARBITRAGE = "funding_arbitrage"
+    TRIANGULAR_ARBITRAGE = "triangular_arbitrage"
+    AGGRESSIVE_SCALPER = "aggressive_scalper"
+    MEAN_REVERSION = "mean_reversion"
+    TREND_MASTER = "trend_master"
+    GRID = "grid"
+    DCA = "dca"
+
+
+class StrategyAutoSelector:
+    """AI-powered strategy selector with real-time market analysis"""
+    
+    def __init__(self):
+        self.strategy_profiles = {
+            StrategyType.LIQUIDITY: {
+                'name': 'Liquidity Hunter',
+                'best_for': ['ranging', 'volatile'],
+                'timeframe': 'intraday',
+                'risk_level': 'medium',
+                'min_capital': 1000,
+                'complexity': 'high',
+                'win_rate_range': (0.55, 0.65),
+                'avg_trade_duration': 2,
+                'requires_monitoring': True,
+                'description': 'Hunts liquidity zones and order blocks for precise entries'
+            },
+            StrategyType.TURTLE: {
+                'name': 'Turtle Trader',
+                'best_for': ['strong_trend'],
+                'timeframe': 'swing',
+                'risk_level': 'medium',
+                'min_capital': 5000,
+                'complexity': 'medium',
+                'win_rate_range': (0.40, 0.50),
+                'avg_trade_duration': 168,
+                'requires_monitoring': False,
+                'description': 'Classic trend-following with breakout entries'
+            },
+            StrategyType.ICT: {
+                'name': 'ICT Strategy',
+                'best_for': ['ranging', 'weak_trend'],
+                'timeframe': 'intraday',
+                'risk_level': 'medium-high',
+                'min_capital': 2000,
+                'complexity': 'very_high',
+                'win_rate_range': (0.60, 0.70),
+                'avg_trade_duration': 4,
+                'requires_monitoring': True,
+                'description': 'Advanced ICT concepts: FVG, OB, Liquidity grabs'
+            },
+            StrategyType.PRICE_ARBITRAGE: {
+                'name': 'Price Arbitrage',
+                'best_for': ['any'],
+                'timeframe': 'minutes',
+                'risk_level': 'low',
+                'min_capital': 500,
+                'complexity': 'low',
+                'win_rate_range': (0.80, 0.90),
+                'avg_trade_duration': 0.1,
+                'requires_monitoring': False,
+                'description': 'Exploits price differences across exchanges'
+            },
+            StrategyType.FUNDING_ARBITRAGE: {
+                'name': 'Funding Rate Arb',
+                'best_for': ['any'],
+                'timeframe': 'daily',
+                'risk_level': 'very_low',
+                'min_capital': 10000,
+                'complexity': 'low',
+                'win_rate_range': (0.90, 0.95),
+                'avg_trade_duration': 720,
+                'requires_monitoring': False,
+                'description': 'Captures funding rate differences between exchanges'
+            },
+            StrategyType.TRIANGULAR_ARBITRAGE: {
+                'name': 'Triangular Arb',
+                'best_for': ['any'],
+                'timeframe': 'minutes',
+                'risk_level': 'low',
+                'min_capital': 1000,
+                'complexity': 'medium',
+                'win_rate_range': (0.70, 0.80),
+                'avg_trade_duration': 0.2,
+                'requires_monitoring': False,
+                'description': 'Exploits inefficiencies in currency triangles'
+            },
+            StrategyType.AGGRESSIVE_SCALPER: {
+                'name': 'Aggressive Scalper',
+                'best_for': ['volatile'],
+                'timeframe': 'seconds',
+                'risk_level': 'high',
+                'min_capital': 2000,
+                'complexity': 'high',
+                'win_rate_range': (0.55, 0.65),
+                'avg_trade_duration': 0.05,
+                'requires_monitoring': True,
+                'description': 'Ultra-fast scalping on volatile moves'
+            },
+            StrategyType.MEAN_REVERSION: {
+                'name': 'Mean Reversion',
+                'best_for': ['ranging', 'low_volatility'],
+                'timeframe': 'intraday',
+                'risk_level': 'medium',
+                'min_capital': 3000,
+                'complexity': 'medium',
+                'win_rate_range': (0.60, 0.70),
+                'avg_trade_duration': 6,
+                'requires_monitoring': False,
+                'description': 'Trades reversals from extreme prices'
+            },
+            StrategyType.TREND_MASTER: {
+                'name': 'Trend Master',
+                'best_for': ['strong_trend'],
+                'timeframe': 'swing',
+                'risk_level': 'medium',
+                'min_capital': 4000,
+                'complexity': 'medium',
+                'win_rate_range': (0.45, 0.55),
+                'avg_trade_duration': 120,
+                'requires_monitoring': False,
+                'description': 'Rides major trends with pyramiding'
+            },
+            StrategyType.GRID: {
+                'name': 'Grid Bot',
+                'best_for': ['ranging'],
+                'timeframe': 'continuous',
+                'risk_level': 'low',
+                'min_capital': 2000,
+                'complexity': 'low',
+                'win_rate_range': (0.70, 0.80),
+                'avg_trade_duration': 24,
+                'requires_monitoring': False,
+                'description': 'Places buy/sell orders at fixed intervals'
+            },
+            StrategyType.DCA: {
+                'name': 'DCA Bot',
+                'best_for': ['strong_trend'],
+                'timeframe': 'daily',
+                'risk_level': 'low',
+                'min_capital': 1000,
+                'complexity': 'very_low',
+                'win_rate_range': (0.65, 0.75),
+                'avg_trade_duration': 720,
+                'requires_monitoring': False,
+                'description': 'Dollar-cost averaging into positions'
+            }
+        }
+        
+        # Performance tracking
+        self.historical_performance = {}
+        
+        logger.info("Strategy Auto-Selector initialized with 11 strategies")
+    
+    def analyze_market_conditions(self, candles: List[Dict]) -> Dict:
+        """Comprehensive market analysis"""
+        df = pd.DataFrame(candles[-100:])
+        
+        # 1. Trend Analysis
+        ema_20 = df['close'].ewm(span=20).mean()
+        ema_50 = df['close'].ewm(span=50).mean()
+        ema_200 = df['close'].ewm(span=200).mean() if len(df) >= 200 else ema_50
+        
+        trend_strength = abs(ema_20.iloc[-1] - ema_50.iloc[-1]) / ema_50.iloc[-1]
+        is_uptrend = ema_20.iloc[-1] > ema_50.iloc[-1]
+        
+        if trend_strength > 0.05:
+            trend = 'strong_trend'
+        elif trend_strength > 0.02:
+            trend = 'weak_trend'
+        else:
+            trend = 'ranging'
+        
+        # 2. Volatility (ATR)
+        high_low = df['high'] - df['low']
+        high_close = abs(df['high'] - df['close'].shift(1))
+        low_close = abs(df['low'] - df['close'].shift(1))
+        
+        tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+        atr = tr.rolling(window=14).mean().iloc[-1]
+        atr_pct = (atr / df['close'].iloc[-1]) * 100
+        
+        volatility = 'volatile' if atr_pct > 2.0 else 'low_volatility'
+        
+        # 3. Volume Analysis
+        avg_volume = df['volume'].mean() if 'volume' in df.columns else 0
+        recent_volume = df['volume'].iloc[-10:].mean() if 'volume' in df.columns else 0
+        volume_ratio = recent_volume / avg_volume if avg_volume > 0 else 1
+        
+        # 4. Support/Resistance
+        recent_high = df['high'].iloc[-20:].max()
+        recent_low = df['low'].iloc[-20:].min()
+        current_position = (df['close'].iloc[-1] - recent_low) / (recent_high - recent_low)
+        
+        # 5. RSI
+        delta = df['close'].diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        rsi = 100 - (100 / (1 + rs))
+        current_rsi = rsi.iloc[-1]
+        
+        # Market regime classification
+        if trend == 'strong_trend' and volatility == 'volatile':
+            regime = 'breakout'
+        elif trend == 'ranging' and volatility == 'low_volatility':
+            regime = 'consolidation'
+        elif volatility == 'volatile':
+            regime = 'chaotic'
+        else:
+            regime = 'normal'
+        
+        return {
+            'trend': trend,
+            'trend_direction': 'bullish' if is_uptrend else 'bearish',
+            'trend_strength': trend_strength,
+            'volatility': volatility,
+            'atr_pct': atr_pct,
+            'volume_ratio': volume_ratio,
+            'rsi': current_rsi,
+            'position_in_range': current_position,
+            'regime': regime,
+            'current_price': df['close'].iloc[-1],
+            'price_change_24h': (df['close'].iloc[-1] / df['close'].iloc[-24] - 1) * 100 if len(df) >= 24 else 0
+        }
+    
+    def calculate_strategy_scores(
+        self,
+        market_conditions: Dict,
+        user_profile: Dict,
+        historical_performance: Optional[Dict] = None
+    ) -> Dict[StrategyType, float]:
+        """Calculate weighted scores for each strategy"""
+        scores = {}
+        
+        for strategy_type, profile in self.strategy_profiles.items():
+            score = 0.0
+            
+            # 1. Market Condition Match (35 points)
+            market_score = 0
+            if market_conditions['trend'] in profile['best_for'] or 'any' in profile['best_for']:
+                market_score += 25
+            if market_conditions['volatility'] in profile['best_for']:
+                market_score += 10
+            score += market_score
+            
+            # 2. Capital Match (15 points)
+            if user_profile['capital'] >= profile['min_capital']:
+                capital_ratio = user_profile['capital'] / profile['min_capital']
+                score += min(15, 10 + np.log1p(capital_ratio) * 2)
+            
+            # 3. Risk Match (15 points)
+            risk_match = self._match_risk_tolerance(
+                user_profile['risk_tolerance'],
+                profile['risk_level']
+            )
+            score += risk_match * 15
+            
+            # 4. Time Commitment (10 points)
+            if user_profile['can_monitor'] or not profile['requires_monitoring']:
+                score += 10
+            elif not user_profile['can_monitor'] and profile['requires_monitoring']:
+                score -= 5  # Penalty
+            
+            # 5. Experience Match (10 points)
+            complexity_score = self._match_complexity(
+                user_profile['experience'],
+                profile['complexity']
+            )
+            score += complexity_score * 10
+            
+            # 6. Historical Performance (15 points)
+            if historical_performance and strategy_type.value in historical_performance:
+                perf = historical_performance[strategy_type.value]
+                
+                # ROI bonus
+                if perf.get('roi', 0) > 0:
+                    score += min(10, perf['roi'] / 10)
+                
+                # Win rate bonus
+                if perf.get('win_rate', 0) > 0.6:
+                    score += 5
+                
+                # Sharpe ratio bonus
+                if perf.get('sharpe', 0) > 1.5:
+                    score += 5
+                
+                # Penalty for poor performance
+                if perf.get('roi', 0) < -10:
+                    score -= 15
+            
+            scores[strategy_type] = max(0, min(100, score))
+        
+        return scores
+    
+    def _match_risk_tolerance(self, user_risk: str, strategy_risk: str) -> float:
+        """Match risk tolerance (0.0 to 1.0)"""
+        risk_map = {
+            'very_low': 0, 'low': 1, 'medium': 2,
+            'medium-high': 3, 'high': 4, 'very_high': 5
+        }
+        
+        user_lvl = risk_map.get(user_risk, 2)
+        strat_lvl = risk_map.get(strategy_risk, 2)
+        diff = abs(user_lvl - strat_lvl)
+        
+        if diff == 0: return 1.0
+        if diff == 1: return 0.7
+        if diff == 2: return 0.4
+        return 0.2
+    
+    def _match_complexity(self, user_experience: str, strategy_complexity: str) -> float:
+        """Match experience with complexity"""
+        exp_map = {'beginner': 0, 'intermediate': 1, 'advanced': 2, 'expert': 3}
+        comp_map = {'very_low': 0, 'low': 1, 'medium': 2, 'high': 3, 'very_high': 4}
+        
+        user_lvl = exp_map.get(user_experience, 0)
+        strat_lvl = comp_map.get(strategy_complexity, 0)
+        
+        if user_lvl >= strat_lvl: return 1.0
+        if user_lvl == strat_lvl - 1: return 0.6
+        return 0.3
+    
+    def recommend_strategy(
+        self,
+        candles: List[Dict],
+        user_profile: Dict,
+        historical_performance: Optional[Dict] = None,
+        top_n: int = 3
+    ) -> List[Tuple[StrategyType, float, str]]:
+        """Get top N strategy recommendations with reasoning"""
+        
+        market = self.analyze_market_conditions(candles)
+        scores = self.calculate_strategy_scores(market, user_profile, historical_performance)
+        
+        sorted_strategies = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        
+        recommendations = []
+        for strategy_type, score in sorted_strategies[:top_n]:
+            reasoning = self._generate_reasoning(strategy_type, score, market, user_profile)
+            recommendations.append((strategy_type, score, reasoning))
+        
+        return recommendations
+    
+    def _generate_reasoning(
+        self,
+        strategy_type: StrategyType,
+        score: float,
+        market: Dict,
+        user_profile: Dict
+    ) -> str:
+        """Generate human-readable reasoning"""
+        profile = self.strategy_profiles[strategy_type]
+        reasons = []
+        
+        # Market fit
+        if market['trend'] in profile['best_for']:
+            reasons.append(f"✅ Perfect for {market['trend']} market")
+        
+        # Risk match
+        if self._match_risk_tolerance(user_profile['risk_tolerance'], profile['risk_level']) > 0.8:
+            reasons.append(f"✅ Matches {user_profile['risk_tolerance']} risk tolerance")
+        
+        # Capital
+        if user_profile['capital'] >= profile['min_capital'] * 2:
+            reasons.append(f"✅ Well-capitalized (min: ${profile['min_capital']:,})")
+        
+        # Monitoring
+        if not profile['requires_monitoring']:
+            reasons.append("✅ Set-and-forget (no monitoring needed)")
+        
+        # Win rate
+        avg_wr = sum(profile['win_rate_range']) / 2
+        reasons.append(f"📊 Win rate: {avg_wr*100:.0f}%")
+        
+        # Duration
+        duration = self._format_duration(profile['avg_trade_duration'])
+        reasons.append(f"⏱️ Avg hold: {duration}")
+        
+        return "\n".join(reasons)
+    
+    def _format_duration(self, hours: float) -> str:
+        """Format trade duration"""
+        if hours < 1:
+            return f"{hours*60:.0f} min"
+        elif hours < 24:
+            return f"{hours:.0f}h"
+        else:
+            return f"{hours/24:.0f}d"
+    
+    def get_optimal_allocation(
+        self,
+        candles: List[Dict],
+        user_profile: Dict,
+        total_capital: float
+    ) -> Dict[StrategyType, float]:
+        """Calculate optimal capital allocation"""
+        
+        recommendations = self.recommend_strategy(candles, user_profile, top_n=5)
+        
+        # Filter strategies with score > 60
+        valid = [(s, score) for s, score, _ in recommendations if score > 60]
+        
+        if not valid:
+            return {}
+        
+        total_score = sum(score for _, score in valid)
+        allocation = {}
+        
+        for strategy_type, score in valid:
+            percentage = score / total_score
+            allocated = total_capital * percentage
+            
+            min_capital = self.strategy_profiles[strategy_type]['min_capital']
+            if allocated >= min_capital:
+                allocation[strategy_type] = round(allocated, 2)
+        
+        return allocation
+    
+    def explain_recommendation(
+        self,
+        strategy_type: StrategyType,
+        candles: List[Dict],
+        user_profile: Dict
+    ) -> str:
+        """Detailed explanation"""
+        
+        market = self.analyze_market_conditions(candles)
+        profile = self.strategy_profiles[strategy_type]
+        
+        return f"""
+📊 **{profile['name'].upper()}**
+
+{profile['description']}
+
+**Strategy Profile:**
+• Risk: {profile['risk_level']}
+• Timeframe: {profile['timeframe']}
+• Complexity: {profile['complexity']}
+• Min Capital: ${profile['min_capital']:,}
+• Win Rate: {sum(profile['win_rate_range'])/2*100:.0f}%
+
+**Current Market:**
+• Trend: {market['trend']} ({market['trend_direction']})
+• Volatility: {market['atr_pct']:.2f}%
+• RSI: {market['rsi']:.1f}
+• 24h Change: {market['price_change_24h']:+.2f}%
+• Regime: {market['regime']}
+
+**Your Profile:**
+• Capital: ${user_profile['capital']:,}
+• Risk: {user_profile['risk_tolerance']}
+• Experience: {user_profile['experience']}
+
+**Why This Strategy:**
+• Best for {', '.join(profile['best_for'])} conditions
+• {'Requires' if profile['requires_monitoring'] else 'No'} constant monitoring
+• Avg hold: {self._format_duration(profile['avg_trade_duration'])}
+
+⚠️ Always use stop losses and proper position sizing!
+        """.strip()
+    
+    def save_performance(self, strategy: StrategyType, metrics: Dict):
+        """Save strategy performance for future recommendations"""
+        self.historical_performance[strategy.value] = metrics
+    
+    def export_recommendation_report(
+        self,
+        candles: List[Dict],
+        user_profile: Dict,
+        filepath: str = "strategy_report.json"
+    ) -> str:
+        """Export full recommendation report"""
+        
+        market = self.analyze_market_conditions(candles)
+        recommendations = self.recommend_strategy(candles, user_profile, top_n=5)
+        allocation = self.get_optimal_allocation(candles, user_profile, user_profile['capital'])
+        
+        report = {
+            'timestamp': datetime.now().isoformat(),
+            'market_analysis': market,
+            'user_profile': user_profile,
+            'recommendations': [
+                {
+                    'strategy': s.value,
+                    'score': score,
+                    'reasoning': reasoning
+                }
+                for s, score, reasoning in recommendations
+            ],
+            'suggested_allocation': {
+                s.value: amount for s, amount in allocation.items()
+            }
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        return filepath
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
+    
+    selector = StrategyAutoSelector()
+    
+    # Test user
+    user = {
+        'capital': 10000,
+        'risk_tolerance': 'medium',
+        'experience': 'intermediate',
+        'can_monitor': False
+    }
+    
+    print("✅ Strategy Auto-Selector initialized!")
+    print(f"📊 Available strategies: {len(selector.strategy_profiles)}")
