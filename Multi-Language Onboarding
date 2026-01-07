@@ -1,0 +1,248 @@
+import React, { useState } from 'react';
+import { CheckCircle, Circle, ArrowRight, ArrowLeft, TrendingUp, Shield, Zap, Target, Book, Bell, Globe } from 'lucide-react';
+
+const translations = {
+  en: { name: "English", flag: "🇬🇧", welcome: "Welcome, Trader! 🚀", subtitle: "Find your perfect strategy. 2 minutes.", capital: "Starting capital?", exp: "Trading experience?", risk: "Risk tolerance?", monitor: "Can you monitor?", goals: "Your goals?", yes: "Yes", no: "No", next: "Next", back: "Back", start: "Start Trading" },
+  bg: { name: "Български", flag: "🇧🇬", welcome: "Добре дошъл! 🚀", subtitle: "Намираме стратегия. 2 минути.", capital: "Начален капитал?", exp: "Опит?", risk: "Риск?", monitor: "Можеш ли да следиш?", goals: "Цели?", yes: "Да", no: "Не", next: "Напред", back: "Назад", start: "Започни" },
+  ru: { name: "Русский", flag: "🇷🇺", welcome: "Добро пожаловать! 🚀", subtitle: "Найдём стратегию. 2 минуты.", capital: "Начальный капитал?", exp: "Опыт?", risk: "Риск?", monitor: "Можете следить?", goals: "Цели?", yes: "Да", no: "Нет", next: "Далее", back: "Назад", start: "Начать" },
+  es: { name: "Español", flag: "🇪🇸", welcome: "¡Bienvenido! 🚀", subtitle: "Encontremos estrategia. 2 minutos.", capital: "¿Capital inicial?", exp: "¿Experiencia?", risk: "¿Riesgo?", monitor: "¿Puedes monitorear?", goals: "¿Objetivos?", yes: "Sí", no: "No", next: "Siguiente", back: "Atrás", start: "Comenzar" },
+  fr: { name: "Français", flag: "🇫🇷", welcome: "Bienvenue! 🚀", subtitle: "Trouvons stratégie. 2 minutes.", capital: "Capital de départ?", exp: "Expérience?", risk: "Risque?", monitor: "Pouvez-vous surveiller?", goals: "Objectifs?", yes: "Oui", no: "Non", next: "Suivant", back: "Retour", start: "Commencer" },
+  de: { name: "Deutsch", flag: "🇩🇪", welcome: "Willkommen! 🚀", subtitle: "Strategie finden. 2 Minuten.", capital: "Startkapital?", exp: "Erfahrung?", risk: "Risiko?", monitor: "Können Sie überwachen?", goals: "Ziele?", yes: "Ja", no: "Nein", next: "Weiter", back: "Zurück", start: "Starten" },
+  pt: { name: "Português", flag: "🇵🇹", welcome: "Bem-vindo! 🚀", subtitle: "Encontrar estratégia. 2 minutos.", capital: "Capital inicial?", exp: "Experiência?", risk: "Risco?", monitor: "Pode monitorar?", goals: "Objetivos?", yes: "Sim", no: "Não", next: "Próximo", back: "Voltar", start: "Começar" },
+  tr: { name: "Türkçe", flag: "🇹🇷", welcome: "Hoş geldiniz! 🚀", subtitle: "Strateji bulalım. 2 dakika.", capital: "Başlangıç sermayesi?", exp: "Deneyim?", risk: "Risk?", monitor: "İzleyebilir misiniz?", goals: "Hedefler?", yes: "Evet", no: "Hayır", next: "İleri", back: "Geri", start: "Başla" },
+  zh: { name: "中文", flag: "🇨🇳", welcome: "欢迎！🚀", subtitle: "找策略。2分钟。", capital: "初始资金？", exp: "经验？", risk: "风险？", monitor: "能监控吗？", goals: "目标？", yes: "是", no: "否", next: "下一步", back: "返回", start: "开始" },
+  ar: { name: "العربية", flag: "🇸🇦", welcome: "!مرحباً 🚀", subtitle: ".دقيقتان .استراتيجية", capital: "رأس المال؟", exp: "الخبرة؟", risk: "المخاطر؟", monitor: "هل يمكنك المراقبة؟", goals: "الأهداف؟", yes: "نعم", no: "لا", next: "التالي", back: "رجوع", start: "ابدأ" }
+};
+
+const opts = {
+  capital: [
+    { v: '500', e: '🌱', l: '$500-$1K' },
+    { v: '2500', e: '💪', l: '$1K-$5K' },
+    { v: '7500', e: '🚀', l: '$5K-$10K' },
+    { v: '15000', e: '💎', l: '$10K+' }
+  ],
+  exp: [
+    { v: 'beginner', e: '🐣', en: 'Beginner', bg: 'Начинаещ', ru: 'Новичок', es: 'Principiante', fr: 'Débutant', de: 'Anfänger', pt: 'Iniciante', tr: 'Başlangıç', zh: '初学者', ar: 'مبتدئ' },
+    { v: 'intermediate', e: '📈', en: 'Intermediate', bg: 'Среден', ru: 'Средний', es: 'Intermedio', fr: 'Intermédiaire', de: 'Fortgeschritten', pt: 'Intermediário', tr: 'Orta', zh: '中级', ar: 'متوسط' },
+    { v: 'advanced', e: '🎯', en: 'Advanced', bg: 'Напреднал', ru: 'Продвинутый', es: 'Avanzado', fr: 'Avancé', de: 'Erfahren', pt: 'Avançado', tr: 'İleri', zh: '高级', ar: 'متقدم' },
+    { v: 'expert', e: '👑', en: 'Expert', bg: 'Експерт', ru: 'Эксперт', es: 'Experto', fr: 'Expert', de: 'Experte', pt: 'Especialista', tr: 'Uzman', zh: '专家', ar: 'خبير' }
+  ],
+  risk: [
+    { v: 'very_low', e: '🐢', en: 'Very Low', bg: 'Много нисък', ru: 'Очень низкий', es: 'Muy bajo', fr: 'Très bas', de: 'Sehr niedrig', pt: 'Muito baixo', tr: 'Çok düşük', zh: '非常低', ar: 'منخفض جداً' },
+    { v: 'low', e: '🛡️', en: 'Low', bg: 'Нисък', ru: 'Низкий', es: 'Bajo', fr: 'Bas', de: 'Niedrig', pt: 'Baixo', tr: 'Düşük', zh: '低', ar: 'منخفض' },
+    { v: 'medium', e: '⚖️', en: 'Medium', bg: 'Среден', ru: 'Средний', es: 'Medio', fr: 'Moyen', de: 'Mittel', pt: 'Médio', tr: 'Orta', zh: '中', ar: 'متوسط' },
+    { v: 'high', e: '🔥', en: 'High', bg: 'Висок', ru: 'Высокий', es: 'Alto', fr: 'Élevé', de: 'Hoch', pt: 'Alto', tr: 'Yüksek', zh: '高', ar: 'عالي' }
+  ],
+  goals: [
+    { v: 'income', e: '💰', en: 'Income', bg: 'Доход', ru: 'Доход', es: 'Ingresos', fr: 'Revenu', de: 'Einkommen', pt: 'Renda', tr: 'Gelir', zh: '收入', ar: 'دخل' },
+    { v: 'growth', e: '📊', en: 'Growth', bg: 'Растеж', ru: 'Рост', es: 'Crecimiento', fr: 'Croissance', de: 'Wachstum', pt: 'Crescimento', tr: 'Büyüme', zh: '增长', ar: 'نمو' },
+    { v: 'learning', e: '🎓', en: 'Learning', bg: 'Учене', ru: 'Обучение', es: 'Aprender', fr: 'Apprendre', de: 'Lernen', pt: 'Aprender', tr: 'Öğrenme', zh: '学习', ar: 'تعلم' },
+    { v: 'passive', e: '😴', en: 'Passive', bg: 'Пасивен', ru: 'Пассивный', es: 'Pasivo', fr: 'Passif', de: 'Passiv', pt: 'Passivo', tr: 'Pasif', zh: '被动', ar: 'سلبي' }
+  ]
+};
+
+export default function Onboarding() {
+  const [lang, setLang] = useState('en');
+  const [step, setStep] = useState(0);
+  const [profile, setProfile] = useState({ capital: '', experience: '', risk: '', monitor: null, goals: [] });
+  const [done, setDone] = useState(false);
+
+  const t = translations[lang];
+  const steps = ['welcome', 'capital', 'exp', 'risk', 'monitor', 'goals', 'result'];
+
+  const canNext = () => {
+    if (step === 0) return true;
+    if (step === 1) return profile.capital;
+    if (step === 2) return profile.experience;
+    if (step === 3) return profile.risk;
+    if (step === 4) return profile.monitor !== null;
+    if (step === 5) return profile.goals.length > 0;
+    return true;
+  };
+
+  const getRecommendation = () => {
+    const cap = parseFloat(profile.capital) || 0;
+    if (cap < 1000) return { name: 'DCA Bot', desc: 'Best for small capital. Automated buying.' };
+    if (profile.experience === 'beginner') return { name: 'Grid Bot', desc: 'Simple automated strategy. Perfect for beginners.' };
+    return { name: 'Arbitrage Bot', desc: 'Advanced strategy. Good returns.' };
+  };
+
+  if (done) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
+          <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-4" />
+          <h2 className="text-3xl font-bold mb-2">✅ {t.name === "العربية" ? "!جاهز" : "Ready!"}</h2>
+          <button onClick={() => alert('Dashboard...')} className="bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-600 mt-4">
+            Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
+      <div className="fixed top-4 right-4 z-50 bg-white rounded-lg shadow-lg p-2 flex items-center gap-2">
+        <Globe className="w-5 h-5" />
+        <select value={lang} onChange={(e) => setLang(e.target.value)} className="bg-transparent outline-none font-semibold">
+          {Object.entries(translations).map(([k, v]) => (
+            <option key={k} value={k}>{v.flag} {v.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="max-w-4xl mx-auto py-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-2">
+            {steps.map((_, i) => (
+              <React.Fragment key={i}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${i < step ? 'bg-green-500 text-white' : i === step ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                  {i < step ? <CheckCircle className="w-6 h-6" /> : <Circle className="w-6 h-6" />}
+                </div>
+                {i < steps.length - 1 && <div className={`flex-1 h-1 mx-2 ${i < step ? 'bg-green-500' : 'bg-gray-200'}`} />}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="text-center text-sm mt-2">{step + 1} / {steps.length}</div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-8 min-h-[500px]">
+          {step === 0 && (
+            <div className="text-center space-y-6">
+              <TrendingUp className="w-16 h-16 text-blue-500 mx-auto" />
+              <h2 className="text-3xl font-bold">{t.welcome}</h2>
+              <p className="text-lg text-gray-600">{t.subtitle}</p>
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className="space-y-6">
+              <Target className="w-16 h-16 text-green-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-center">{t.capital}</h2>
+              <div className="max-w-md mx-auto space-y-4">
+                {opts.capital.map(o => (
+                  <button key={o.v} onClick={() => setProfile({ ...profile, capital: o.v })} className={`w-full p-4 rounded-lg border-2 ${profile.capital === o.v ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{o.e}</span>
+                      <span className="font-semibold">{o.l}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-6">
+              <Book className="w-16 h-16 text-purple-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-center">{t.exp}</h2>
+              <div className="max-w-md mx-auto space-y-4">
+                {opts.exp.map(o => (
+                  <button key={o.v} onClick={() => setProfile({ ...profile, experience: o.v })} className={`w-full p-4 rounded-lg border-2 ${profile.experience === o.v ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{o.e}</span>
+                      <span className="font-semibold">{o[lang]}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-6">
+              <Shield className="w-16 h-16 text-red-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-center">{t.risk}</h2>
+              <div className="max-w-md mx-auto space-y-4">
+                {opts.risk.map(o => (
+                  <button key={o.v} onClick={() => setProfile({ ...profile, risk: o.v })} className={`w-full p-4 rounded-lg border-2 ${profile.risk === o.v ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{o.e}</span>
+                      <span className="font-semibold">{o[lang]}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-6">
+              <Bell className="w-16 h-16 text-yellow-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-center">{t.monitor}</h2>
+              <div className="max-w-md mx-auto space-y-4">
+                {[{ v: true, e: '👀', l: t.yes }, { v: false, e: '🤖', l: t.no }].map(o => (
+                  <button key={String(o.v)} onClick={() => setProfile({ ...profile, monitor: o.v })} className={`w-full p-4 rounded-lg border-2 ${profile.monitor === o.v ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200'}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{o.e}</span>
+                      <span className="font-semibold">{o.l}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="space-y-6">
+              <Zap className="w-16 h-16 text-orange-500 mx-auto" />
+              <h2 className="text-2xl font-bold text-center">{t.goals}</h2>
+              <div className="max-w-md mx-auto space-y-3">
+                {opts.goals.map(o => (
+                  <button key={o.v} onClick={() => {
+                    const g = profile.goals.includes(o.v) ? profile.goals.filter(x => x !== o.v) : [...profile.goals, o.v];
+                    setProfile({ ...profile, goals: g });
+                  }} className={`w-full p-4 rounded-lg border-2 ${profile.goals.includes(o.v) ? 'border-orange-500 bg-orange-50' : 'border-gray-200'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{o.e}</span>
+                        <span className="font-semibold">{o[lang]}</span>
+                      </div>
+                      {profile.goals.includes(o.v) && <CheckCircle className="w-5 h-5 text-orange-500" />}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 6 && (
+            <div className="space-y-6">
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+              <h2 className="text-3xl font-bold text-center text-green-600">Perfect Match! 🎯</h2>
+              <div className="max-w-2xl mx-auto bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-xl border-2 border-green-300">
+                <h3 className="text-2xl font-bold mb-2">{getRecommendation().name}</h3>
+                <p className="text-gray-700 mb-4">{getRecommendation().desc}</p>
+                <div className="bg-white p-4 rounded-lg">
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div>💰 ${profile.capital}</div>
+                    <div>📚 {profile.experience}</div>
+                    <div>🎯 {profile.risk}</div>
+                    <div>⏰ {profile.monitor ? 'Active' : 'Passive'}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="text-center">
+                <button onClick={() => setDone(true)} className="bg-green-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-600">
+                  {t.start} 🚀
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-between mt-6">
+          <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0} className="flex items-center gap-2 px-6 py-3 rounded-lg border-2 disabled:opacity-50">
+            <ArrowLeft className="w-5 h-5" />
+            {t.back}
+          </button>
+          <button onClick={() => setStep(Math.min(steps.length - 1, step + 1))} disabled={!canNext() || step === steps.length - 1} className="flex items-center gap-2 px-6 py-3 rounded-lg bg-blue-500 text-white disabled:opacity-50">
+            {t.next}
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
