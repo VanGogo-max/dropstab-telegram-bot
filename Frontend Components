@@ -1,0 +1,359 @@
+// ============================================================================
+// 1. DemoRealToggle.tsx - Trading Mode Switcher
+// ============================================================================
+import React, { useState } from 'react';
+import { Switch } from '@/components/ui/switch';
+import { AlertTriangle, Shield } from 'lucide-react';
+
+interface DemoRealToggleProps {
+  mode: 'demo' | 'real';
+  onModeChange: (mode: 'demo' | 'real') => void;
+  balance: {
+    demo: number;
+    real: number;
+  };
+}
+
+export const DemoRealToggle: React.FC<DemoRealToggleProps> = ({
+  mode,
+  onModeChange,
+  balance
+}) => {
+  const [showWarning, setShowWarning] = useState(false);
+
+  const handleToggle = (checked: boolean) => {
+    const newMode = checked ? 'real' : 'demo';
+    
+    if (newMode === 'real') {
+      setShowWarning(true);
+      setTimeout(() => {
+        onModeChange(newMode);
+        setShowWarning(false);
+      }, 2000);
+    } else {
+      onModeChange(newMode);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          {mode === 'demo' ? (
+            <Shield className="w-6 h-6 text-blue-500" />
+          ) : (
+            <AlertTriangle className="w-6 h-6 text-orange-500" />
+          )}
+          <div>
+            <h3 className="font-semibold text-lg">
+              {mode === 'demo' ? 'Demo Mode' : 'Real Trading'}
+            </h3>
+            <p className="text-sm text-gray-500">
+              Balance: ${mode === 'demo' ? balance.demo : balance.real}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className={`text-sm font-medium ${mode === 'demo' ? 'text-blue-600' : 'text-gray-400'}`}>
+            Demo
+          </span>
+          <Switch
+            checked={mode === 'real'}
+            onCheckedChange={handleToggle}
+            className={mode === 'real' ? 'bg-orange-500' : 'bg-blue-500'}
+          />
+          <span className={`text-sm font-medium ${mode === 'real' ? 'text-orange-600' : 'text-gray-400'}`}>
+            Real
+          </span>
+        </div>
+      </div>
+
+      {showWarning && (
+        <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-orange-500" />
+            <p className="text-sm text-orange-700 font-medium">
+              Switching to Real Trading! Real money will be used.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {mode === 'demo' && (
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded mt-4">
+          <p className="text-sm text-blue-700">
+            💡 You're in safe mode. Practice strategies without risk!
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+// ============================================================================
+// 2. SignalGridConfig.tsx - Grid Trading Configuration
+// ============================================================================
+import React, { useState } from 'react';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Grid3x3, TrendingUp } from 'lucide-react';
+
+interface GridConfig {
+  symbol: string;
+  levels: number;
+  lowerPrice: number;
+  upperPrice: number;
+  investmentAmount: number;
+}
+
+export const SignalGridConfig: React.FC = () => {
+  const [config, setConfig] = useState<GridConfig>({
+    symbol: 'BTCUSDT',
+    levels: 10,
+    lowerPrice: 40000,
+    upperPrice: 50000,
+    investmentAmount: 1000
+  });
+
+  const gridStep = (config.upperPrice - config.lowerPrice) / (config.levels - 1);
+  const orderSize = config.investmentAmount / config.levels;
+
+  const calculateProfitPerGrid = () => {
+    return ((gridStep / config.lowerPrice) * 100).toFixed(2);
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="flex items-center gap-2 mb-6">
+        <Grid3x3 className="w-6 h-6 text-purple-500" />
+        <h3 className="font-semibold text-xl">Grid Trading Setup</h3>
+      </div>
+
+      {/* Symbol Selection */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Trading Pair</label>
+        <Input
+          value={config.symbol}
+          onChange={(e) => setConfig({ ...config, symbol: e.target.value })}
+          placeholder="BTCUSDT"
+        />
+      </div>
+
+      {/* Grid Levels */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">
+          Grid Levels: {config.levels}
+        </label>
+        <Slider
+          value={[config.levels]}
+          onValueChange={(val) => setConfig({ ...config, levels: val[0] })}
+          min={5}
+          max={50}
+          step={1}
+          className="w-full"
+        />
+      </div>
+
+      {/* Price Range */}
+      <div className="grid grid-cols-2 gap-4 mb-6">
+        <div>
+          <label className="block text-sm font-medium mb-2">Lower Price</label>
+          <Input
+            type="number"
+            value={config.lowerPrice}
+            onChange={(e) => setConfig({ ...config, lowerPrice: parseFloat(e.target.value) })}
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-2">Upper Price</label>
+          <Input
+            type="number"
+            value={config.upperPrice}
+            onChange={(e) => setConfig({ ...config, upperPrice: parseFloat(e.target.value) })}
+          />
+        </div>
+      </div>
+
+      {/* Investment Amount */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium mb-2">Total Investment (USDT)</label>
+        <Input
+          type="number"
+          value={config.investmentAmount}
+          onChange={(e) => setConfig({ ...config, investmentAmount: parseFloat(e.target.value) })}
+        />
+      </div>
+
+      {/* Grid Visualization */}
+      <div className="bg-gradient-to-b from-purple-50 to-white rounded-lg p-4 mb-6">
+        <h4 className="font-medium text-sm mb-3">Grid Preview</h4>
+        <div className="space-y-1">
+          {Array.from({ length: Math.min(config.levels, 10) }).map((_, i) => {
+            const price = config.upperPrice - (i * gridStep);
+            return (
+              <div key={i} className="flex justify-between items-center text-sm">
+                <span className="text-gray-600">Level {i + 1}</span>
+                <span className="font-mono">${price.toFixed(2)}</span>
+                <span className="text-purple-600">${orderSize.toFixed(2)}</span>
+              </div>
+            );
+          })}
+          {config.levels > 10 && (
+            <p className="text-xs text-gray-500 text-center pt-2">
+              ... and {config.levels - 10} more levels
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Statistics */}
+      <div className="bg-green-50 rounded-lg p-4 mb-6">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-gray-600">Order Size</p>
+            <p className="font-semibold text-lg">${orderSize.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-gray-600">Profit/Grid</p>
+            <p className="font-semibold text-lg text-green-600">
+              {calculateProfitPerGrid()}%
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex gap-3">
+        <Button className="flex-1 bg-purple-500 hover:bg-purple-600">
+          <TrendingUp className="w-4 h-4 mr-2" />
+          Start Grid
+        </Button>
+        <Button variant="outline" className="flex-1">
+          Save Template
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+
+// ============================================================================
+// 3. FeedbackWidget.tsx - User Feedback Component
+// ============================================================================
+import React, { useState } from 'react';
+import { MessageSquare, Star, Send, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+
+export const FeedbackWidget: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    // API call to submit feedback
+    console.log({ rating, feedback });
+    setSubmitted(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setSubmitted(false);
+      setRating(0);
+      setFeedback('');
+    }, 2000);
+  };
+
+  return (
+    <>
+      {/* Floating Button */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg transition-transform hover:scale-110 z-50"
+        >
+          <MessageSquare className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* Feedback Modal */}
+      {isOpen && (
+        <div className="fixed bottom-6 right-6 bg-white rounded-lg shadow-2xl w-96 z-50 border border-gray-200">
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 className="font-semibold text-lg">Send Feedback</h3>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {submitted ? (
+            <div className="p-6 text-center">
+              <div className="text-green-500 mb-3">
+                <svg className="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <p className="font-medium text-lg">Thank you!</p>
+              <p className="text-sm text-gray-600">Your feedback helps us improve.</p>
+            </div>
+          ) : (
+            <div className="p-4">
+              {/* Rating */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  How would you rate your experience?
+                </label>
+                <div className="flex gap-2 justify-center">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setRating(star)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`w-8 h-8 ${
+                          star <= rating
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Feedback Text */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-2">
+                  Tell us more (optional)
+                </label>
+                <Textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  placeholder="Share your thoughts, report a bug, or suggest a feature..."
+                  rows={4}
+                  className="w-full resize-none"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                onClick={handleSubmit}
+                disabled={rating === 0}
+                className="w-full bg-blue-500 hover:bg-blue-600"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Send Feedback
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+};
