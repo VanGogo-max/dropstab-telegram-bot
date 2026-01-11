@@ -1,0 +1,445 @@
+{
+  "languages": {
+    "bg": "Български",
+    "en": "English",
+    "ru": "Русский",
+    "es": "Español",
+    "de": "Deutsch",
+    "fr": "Français",
+    "it": "Italiano",
+    "pt": "Português",
+    "tr": "Türkçe",
+    "ar": "العربية"
+  },
+  
+  "bg": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Добре дошли",
+      "loading": "Зареждане...",
+      "save": "Запази",
+      "cancel": "Откажи",
+      "delete": "Изтрий",
+      "edit": "Редактирай",
+      "confirm": "Потвърди",
+      "close": "Затвори"
+    },
+    "dashboard": {
+      "title": "Табло",
+      "balance": "Баланс",
+      "pnl": "П/З",
+      "todayPnl": "Дневна П/З",
+      "totalTrades": "Общо сделки",
+      "winRate": "% Печеливши",
+      "activePositions": "Активни позиции"
+    },
+    "trading": {
+      "demoMode": "Демо режим",
+      "realMode": "Реална търговия",
+      "buy": "Купи",
+      "sell": "Продай",
+      "long": "Лонг",
+      "short": "Шорт",
+      "amount": "Количество",
+      "price": "Цена",
+      "stopLoss": "Стоп загуба",
+      "takeProfit": "Цел печалба",
+      "leverage": "Ливъридж"
+    },
+    "grid": {
+      "title": "Grid търговия",
+      "levels": "Нива",
+      "lowerPrice": "Долна цена",
+      "upperPrice": "Горна цена",
+      "investment": "Инвестиция",
+      "profitPerGrid": "Печалба/Ниво",
+      "startGrid": "Стартирай Grid"
+    },
+    "signals": {
+      "title": "Сигнали",
+      "newSignal": "Нов сигнал",
+      "telegramSignals": "Telegram сигнали",
+      "autoTrade": "Авто търговия",
+      "confidence": "Увереност"
+    },
+    "feedback": {
+      "title": "Обратна връзка",
+      "rate": "Оценете опита си",
+      "comment": "Вашият коментар",
+      "submit": "Изпрати",
+      "thanks": "Благодарим!"
+    },
+    "settings": {
+      "title": "Настройки",
+      "language": "Език",
+      "theme": "Тема",
+      "notifications": "Известия",
+      "riskLevel": "Ниво на риск",
+      "apiKeys": "API ключове"
+    }
+  },
+
+  "en": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Welcome",
+      "loading": "Loading...",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "confirm": "Confirm",
+      "close": "Close"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "balance": "Balance",
+      "pnl": "P&L",
+      "todayPnl": "Today's P&L",
+      "totalTrades": "Total Trades",
+      "winRate": "Win Rate",
+      "activePositions": "Active Positions"
+    },
+    "trading": {
+      "demoMode": "Demo Mode",
+      "realMode": "Real Trading",
+      "buy": "Buy",
+      "sell": "Sell",
+      "long": "Long",
+      "short": "Short",
+      "amount": "Amount",
+      "price": "Price",
+      "stopLoss": "Stop Loss",
+      "takeProfit": "Take Profit",
+      "leverage": "Leverage"
+    },
+    "grid": {
+      "title": "Grid Trading",
+      "levels": "Levels",
+      "lowerPrice": "Lower Price",
+      "upperPrice": "Upper Price",
+      "investment": "Investment",
+      "profitPerGrid": "Profit/Grid",
+      "startGrid": "Start Grid"
+    },
+    "signals": {
+      "title": "Signals",
+      "newSignal": "New Signal",
+      "telegramSignals": "Telegram Signals",
+      "autoTrade": "Auto Trade",
+      "confidence": "Confidence"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "rate": "Rate your experience",
+      "comment": "Your comment",
+      "submit": "Submit",
+      "thanks": "Thank you!"
+    },
+    "settings": {
+      "title": "Settings",
+      "language": "Language",
+      "theme": "Theme",
+      "notifications": "Notifications",
+      "riskLevel": "Risk Level",
+      "apiKeys": "API Keys"
+    }
+  },
+
+  "ru": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Добро пожаловать",
+      "loading": "Загрузка...",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "delete": "Удалить",
+      "edit": "Изменить",
+      "confirm": "Подтвердить",
+      "close": "Закрыть"
+    },
+    "dashboard": {
+      "title": "Панель управления",
+      "balance": "Баланс",
+      "pnl": "П/У",
+      "todayPnl": "П/У за сегодня",
+      "totalTrades": "Всего сделок",
+      "winRate": "% прибыльных",
+      "activePositions": "Активные позиции"
+    },
+    "trading": {
+      "demoMode": "Демо режим",
+      "realMode": "Реальная торговля",
+      "buy": "Купить",
+      "sell": "Продать",
+      "long": "Лонг",
+      "short": "Шорт",
+      "amount": "Количество",
+      "price": "Цена",
+      "stopLoss": "Стоп лосс",
+      "takeProfit": "Тейк профит",
+      "leverage": "Плечо"
+    },
+    "grid": {
+      "title": "Гридовая торговля",
+      "levels": "Уровни",
+      "lowerPrice": "Нижняя цена",
+      "upperPrice": "Верхняя цена",
+      "investment": "Инвестиция",
+      "profitPerGrid": "Прибыль/Уровень",
+      "startGrid": "Запустить грид"
+    }
+  },
+
+  "es": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Bienvenido",
+      "loading": "Cargando...",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "confirm": "Confirmar",
+      "close": "Cerrar"
+    },
+    "dashboard": {
+      "title": "Panel",
+      "balance": "Balance",
+      "pnl": "P&L",
+      "todayPnl": "P&L de hoy",
+      "totalTrades": "Operaciones totales",
+      "winRate": "Tasa de éxito",
+      "activePositions": "Posiciones activas"
+    },
+    "trading": {
+      "demoMode": "Modo demo",
+      "realMode": "Trading real",
+      "buy": "Comprar",
+      "sell": "Vender",
+      "long": "Largo",
+      "short": "Corto",
+      "amount": "Cantidad",
+      "price": "Precio",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "leverage": "Apalancamiento"
+    }
+  },
+
+  "de": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Willkommen",
+      "loading": "Laden...",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "delete": "Löschen",
+      "edit": "Bearbeiten",
+      "confirm": "Bestätigen",
+      "close": "Schließen"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "balance": "Guthaben",
+      "pnl": "G/V",
+      "todayPnl": "Heutige G/V",
+      "totalTrades": "Gesamte Trades",
+      "winRate": "Gewinnrate",
+      "activePositions": "Aktive Positionen"
+    },
+    "trading": {
+      "demoMode": "Demo-Modus",
+      "realMode": "Echtgeld-Handel",
+      "buy": "Kaufen",
+      "sell": "Verkaufen",
+      "long": "Long",
+      "short": "Short",
+      "amount": "Menge",
+      "price": "Preis",
+      "stopLoss": "Stop-Loss",
+      "takeProfit": "Take-Profit",
+      "leverage": "Hebel"
+    }
+  },
+
+  "fr": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Bienvenue",
+      "loading": "Chargement...",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "edit": "Modifier",
+      "confirm": "Confirmer",
+      "close": "Fermer"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "balance": "Solde",
+      "pnl": "P&L",
+      "todayPnl": "P&L du jour",
+      "totalTrades": "Trades totaux",
+      "winRate": "Taux de réussite",
+      "activePositions": "Positions actives"
+    },
+    "trading": {
+      "demoMode": "Mode démo",
+      "realMode": "Trading réel",
+      "buy": "Acheter",
+      "sell": "Vendre",
+      "long": "Long",
+      "short": "Short",
+      "amount": "Montant",
+      "price": "Prix",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "leverage": "Effet de levier"
+    }
+  },
+
+  "it": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Benvenuto",
+      "loading": "Caricamento...",
+      "save": "Salva",
+      "cancel": "Annulla",
+      "delete": "Elimina",
+      "edit": "Modifica",
+      "confirm": "Conferma",
+      "close": "Chiudi"
+    },
+    "dashboard": {
+      "title": "Pannello",
+      "balance": "Saldo",
+      "pnl": "P&L",
+      "todayPnl": "P&L di oggi",
+      "totalTrades": "Trade totali",
+      "winRate": "Tasso di successo",
+      "activePositions": "Posizioni attive"
+    },
+    "trading": {
+      "demoMode": "Modalità demo",
+      "realMode": "Trading reale",
+      "buy": "Compra",
+      "sell": "Vendi",
+      "long": "Long",
+      "short": "Short",
+      "amount": "Quantità",
+      "price": "Prezzo",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "leverage": "Leva"
+    }
+  },
+
+  "pt": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Bem-vindo",
+      "loading": "Carregando...",
+      "save": "Salvar",
+      "cancel": "Cancelar",
+      "delete": "Excluir",
+      "edit": "Editar",
+      "confirm": "Confirmar",
+      "close": "Fechar"
+    },
+    "dashboard": {
+      "title": "Painel",
+      "balance": "Saldo",
+      "pnl": "L&P",
+      "todayPnl": "L&P de hoje",
+      "totalTrades": "Negociações totais",
+      "winRate": "Taxa de ganho",
+      "activePositions": "Posições ativas"
+    },
+    "trading": {
+      "demoMode": "Modo demo",
+      "realMode": "Negociação real",
+      "buy": "Comprar",
+      "sell": "Vender",
+      "long": "Longo",
+      "short": "Curto",
+      "amount": "Quantidade",
+      "price": "Preço",
+      "stopLoss": "Stop loss",
+      "takeProfit": "Take profit",
+      "leverage": "Alavancagem"
+    }
+  },
+
+  "tr": {
+    "common": {
+      "appName": "Trading Bot Pro",
+      "welcome": "Hoş geldiniz",
+      "loading": "Yükleniyor...",
+      "save": "Kaydet",
+      "cancel": "İptal",
+      "delete": "Sil",
+      "edit": "Düzenle",
+      "confirm": "Onayla",
+      "close": "Kapat"
+    },
+    "dashboard": {
+      "title": "Panel",
+      "balance": "Bakiye",
+      "pnl": "K/Z",
+      "todayPnl": "Günlük K/Z",
+      "totalTrades": "Toplam işlem",
+      "winRate": "Kazanma oranı",
+      "activePositions": "Aktif pozisyonlar"
+    },
+    "trading": {
+      "demoMode": "Demo modu",
+      "realMode": "Gerçek işlem",
+      "buy": "Al",
+      "sell": "Sat",
+      "long": "Long",
+      "short": "Short",
+      "amount": "Miktar",
+      "price": "Fiyat",
+      "stopLoss": "Zarar durdur",
+      "takeProfit": "Kâr al",
+      "leverage": "Kaldıraç"
+    }
+  },
+
+  "ar": {
+    "common": {
+      "appName": "بوت التداول المحترف",
+      "welcome": "مرحباً",
+      "loading": "جاري التحميل...",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "delete": "حذف",
+      "edit": "تعديل",
+      "confirm": "تأكيد",
+      "close": "إغلاق"
+    },
+    "dashboard": {
+      "title": "لوحة التحكم",
+      "balance": "الرصيد",
+      "pnl": "الربح والخسارة",
+      "todayPnl": "ربح/خسارة اليوم",
+      "totalTrades": "إجمالي الصفقات",
+      "winRate": "معدل الفوز",
+      "activePositions": "المراكز النشطة"
+    },
+    "trading": {
+      "demoMode": "وضع التجريبي",
+      "realMode": "تداول حقيقي",
+      "buy": "شراء",
+      "sell": "بيع",
+      "long": "شراء",
+      "short": "بيع",
+      "amount": "الكمية",
+      "price": "السعر",
+      "stopLoss": "وقف الخسارة",
+      "takeProfit": "جني الأرباح",
+      "leverage": "الرافعة المالية"
+    }
+  }
+}
